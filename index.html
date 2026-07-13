@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        // Create full screen overlay
+        var div = document.createElement('div');
+        div.style.position = 'fixed';
+        div.style.top = '0';
+        div.style.left = '0';
+        div.style.width = '100%';
+        div.style.height = '100%';
+        div.style.backgroundColor = '#fef2f2';
+        div.style.color = '#991b1b';
+        div.style.padding = '20px';
+        div.style.zIndex = '999999';
+        div.style.fontFamily = 'monospace';
+        div.style.fontSize = '12px';
+        div.style.overflow = 'auto';
+        div.style.boxSizing = 'border-box';
+        div.innerHTML = '<h2 style="margin-top:0;">[Error Crítico en Aplicación]</h2>' +
+          '<p><strong>Mensaje:</strong> ' + message + '</p>' +
+          '<p><strong>Archivo:</strong> ' + source + '</p>' +
+          '<p><strong>Línea:</strong> ' + lineno + ', <strong>Columna:</strong> ' + colno + '</p>' +
+          '<pre style="background:white;padding:15px;border:1px solid #fee2e2;border-radius:12px;color:#374151;white-space:pre-wrap;word-break:break-all;">' + (error ? error.stack : 'No hay stack trace disponible') + '</pre>';
+        
+        if (document.body) {
+          document.body.appendChild(div);
+        } else {
+          window.addEventListener('DOMContentLoaded', function() {
+            document.body.appendChild(div);
+          });
+        }
+        return false;
+      };
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Metaetiquetas para PWA en iPhone / iOS standalone -->
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Finanzas OS" />
+    <link rel="apple-touch-icon" href="/app-icon.png" />
+    
+    <link rel="manifest" href="/manifest.json" />
+    
+    <title>Finanzas & Proyectos OS</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registrado:', reg.scope))
+            .catch(err => console.error('Error al registrar Service Worker:', err));
+        });
+      }
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

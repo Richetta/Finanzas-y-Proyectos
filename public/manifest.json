@@ -1,0 +1,18 @@
+{
+  "name": "Finanzas & Proyectos OS",
+  "short_name": "Finanzas OS",
+  "description": "Sistema operativo financiero y gestor de proyectos offline-first conectado a Google Sheets.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#111827",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

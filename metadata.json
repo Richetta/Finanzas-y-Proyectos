@@ -1,0 +1,6 @@
+{
+  "name": "Finanzas y Proyectos",
+  "description": "Sistema operativo de finanzas personales, presupuestos y planificación de proyectos con sincronización de Google Sheets",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
