@@ -118,6 +118,7 @@ export default function App() {
   const [fixedExpenses, setFixedExpenses] = useState<FixedExpense[]>([]);
   const [shoppingGroups, setShoppingGroups] = useState<ShoppingGroup[]>([]);
   const [loans, setLoans] = useState<Loan[]>([]);
+  const [pantry, setPantry] = useState<PantryItem[]>([]);
   
   // Sync & Connection States
   const [syncConfig, setSyncConfig] = useState<SyncConfig>({ syncMode: 'local', isConnected: false });
@@ -158,6 +159,7 @@ export default function App() {
     const fxex = getLocalFixedExpenses();
     const shopGroups = getLocalShoppingGroups();
     const lns = getLocalLoans();
+    const pnt = getLocalPantry();
     const cfg = getSyncConfig();
     const logs = getSyncLogs();
 
@@ -169,6 +171,7 @@ export default function App() {
     setFixedExpenses(fxex);
     setShoppingGroups(shopGroups);
     setLoans(lns);
+    setPantry(pnt);
     setSyncConfig(cfg);
     setSyncLogs(logs);
 

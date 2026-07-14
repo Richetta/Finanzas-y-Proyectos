@@ -1177,14 +1177,28 @@ export function FintechDashboard({
                 {/* Monto a vender */}
                 <div>
                   <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Monto a vender</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="Monto de la divisa"
-                    value={convertAmount}
-                    onChange={e => setConvertAmount(e.target.value)}
-                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-xs text-neutral-805 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
-                  />
+                  <div className="flex space-x-2">
+                    <input
+                      type="number"
+                      required
+                      placeholder="Monto de la divisa"
+                      value={convertAmount}
+                      onChange={e => setConvertAmount(e.target.value)}
+                      className="flex-1 p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-xs text-neutral-805 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const acc = accounts.find(a => a.name === convertOriginAccount);
+                        if (acc) {
+                          setConvertAmount(String(acc.currentBalance));
+                        }
+                      }}
+                      className="px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-2xl text-[10.5px] font-extrabold border border-indigo-200 transition-colors cursor-pointer"
+                    >
+                      Todo
+                    </button>
+                  </div>
                 </div>
 
                 {/* Tipo de Cambio */}
