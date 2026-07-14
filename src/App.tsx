@@ -1772,6 +1772,7 @@ export default function App() {
                 transactions={transactions}
                 categories={categories}
                 onAddTransaction={handleAddTransaction}
+                onAddTransactionsBatch={handleAddTransactionsBatch}
                 onDeleteTransaction={handleDeleteTransaction}
                 onEditTransaction={handleEditTransaction}
                 onAddAccount={handleAddAccount}
