@@ -1001,11 +1001,15 @@ export function ProjectPlanner({
                           <span className="font-extrabold text-neutral-800">{formatCurrency(financialSummary.globalCapital)}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs text-neutral-600 font-semibold">
-                          <span>2. Gastos Consolidados Previstos de este Proyecto</span>
-                          <span className="font-extrabold text-rose-500">-{formatCurrency(financialSummary.totalEstimatedExpense)}</span>
+                          <span>2. Gastos Ya Pagados / Invertidos (Ya descontados de tus cuentas)</span>
+                          <span className="font-extrabold text-emerald-600">+{formatCurrency(financialSummary.totalSpentExpense)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-neutral-600 font-semibold">
+                          <span>3. Gastos Restantes / Pendientes (Por debitar de tus cuentas)</span>
+                          <span className="font-extrabold text-rose-500">-{formatCurrency(financialSummary.totalEstimatedExpense - financialSummary.totalSpentExpense)}</span>
                         </div>
                         <div className="pt-2.5 border-t border-neutral-200 flex justify-between items-center text-xs font-black">
-                          <span className="text-neutral-800">Sobrante Neto Final (Tu dinero total restante)</span>
+                          <span className="text-neutral-850">Sobrante Neto Estimado (Tu capital final restante)</span>
                           <span className={financialSummary.globalSurplusOrDeficit >= 0 ? "text-emerald-600" : "text-rose-600"}>
                             {formatCurrency(financialSummary.globalSurplusOrDeficit)}
                           </span>
