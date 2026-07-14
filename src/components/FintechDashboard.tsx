@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plus, ArrowUpRight, ArrowDownLeft, ArrowLeftRight, Wallet, CreditCard, 
   Coins, Trash2, Edit2, X, ChevronRight, Check, AlertTriangle, Calendar, Info,
-  FileText, Camera
+  FileText, Camera, RefreshCw
 } from 'lucide-react';
 import { Account, Transaction, Category, ExchangeRates } from '../types';
 
