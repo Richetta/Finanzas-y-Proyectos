@@ -436,6 +436,27 @@ export default function App() {
   };
 
   // Transaction Mutations
+  const handleAddTransactionsBatch = (newTxs: Omit<Transaction, 'id'>[]) => {
+    const transactionsWithIds: Transaction[] = newTxs.map(tx => ({
+      ...tx,
+      id: 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)
+    }));
+
+    const updatedTxs = [...transactionsWithIds, ...transactions];
+    setTransactions(updatedTxs);
+    saveLocalTransactions(updatedTxs);
+
+    // Recalculate balances
+    const updatedAccounts = recalculateAccountBalances(accounts, updatedTxs);
+    setAccounts(updatedAccounts);
+    saveLocalAccounts(updatedAccounts);
+
+    addSyncLog('Transacciones Lote Creadas', 'success', `Lote de ${newTxs.length} transacciones.`);
+    updateLogsState();
+    
+    triggerBackgroundSync(updatedAccounts, updatedTxs, projects, goals);
+  };
+
   const handleAddTransaction = (newTx: Omit<Transaction, 'id'>) => {
     const transactionWithId: Transaction = {
       ...newTx,

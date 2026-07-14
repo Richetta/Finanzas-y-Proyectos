@@ -87,6 +87,76 @@ export function FintechDashboard({
     return amount;
   };
 
+
+  // Open Currency Conversion Modal
+  const openConvertModalWithPreset = (accName: string) => {
+    const acc = accounts.find(a => a.name === accName);
+    if (!acc) return;
+    
+    setConvertOriginAccount(acc.name);
+    setConvertAmount('');
+    
+    // Autofill rate based on exchangeRates
+    if (acc.currency === 'USD') setConvertRate(String(exchangeRates.ARS_USD_BLUE || 1220));
+    else if (acc.currency === 'USDT') setConvertRate(String(exchangeRates.ARS_USDT || 1240));
+    else if (acc.currency === 'BTC') setConvertRate(String((exchangeRates.USD_BTC || 62000) * (exchangeRates.ARS_USD_BLUE || 1220)));
+    else setConvertRate('1');
+
+    // Default destination account to the first ARS account
+    const arsAcc = accounts.find(a => a.currency === 'ARS');
+    if (arsAcc) {
+      setConvertDestAccount(arsAcc.name);
+    } else {
+      setConvertDestAccount('');
+    }
+    
+    setShowConvertModal(true);
+  };
+
+  const handleConvertSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const originAcc = accounts.find(a => a.name === convertOriginAccount);
+    const destAcc = accounts.find(a => a.name === convertDestAccount);
+    const amountToConvert = Number(convertAmount) || 0;
+    const rate = Number(convertRate) || 1;
+
+    if (!originAcc || !destAcc || amountToConvert <= 0 || rate <= 0) {
+      alert('Por favor complete todos los campos con valores válidos.');
+      return;
+    }
+
+    if (amountToConvert > originAcc.currentBalance) {
+      alert(`Saldo insuficiente en ${originAcc.name}. Saldo disponible: ${formatAccountBalance(originAcc.currentBalance, originAcc.currency)}`);
+      return;
+    }
+
+    const resultingArs = amountToConvert * rate;
+
+    // Post Gasto and Ingreso transactions atomically in a single batch
+    onAddTransactionsBatch([
+      {
+        date: new Date().toISOString().split('T')[0],
+        type: 'Gasto',
+        originAccount: originAcc.name,
+        category: 'Otros',
+        amount: amountToConvert,
+        description: `Conversión: Venta de ${amountToConvert} ${originAcc.currency} a Pesos`,
+        tags: ['conversión', `${originAcc.currency.toLowerCase()}-a-ars`]
+      },
+      {
+        date: new Date().toISOString().split('T')[0],
+        type: 'Ingreso',
+        originAccount: destAcc.name,
+        category: 'Otros',
+        amount: resultingArs,
+        description: `Conversión: Ingreso de pesos desde ${originAcc.name}`,
+        tags: ['conversión', `${originAcc.currency.toLowerCase()}-a-ars`]
+      }
+    ]);
+
+    setShowConvertModal(false);
+  };
+
   // Calculations
   const patrimonioTotal = useMemo(() => {
     return accounts.reduce((sum, acc) => sum + convertToArs(acc.currentBalance, acc.currency), 0);
@@ -459,7 +529,7 @@ export function FintechDashboard({
               </div>
               <div className="text-right">
                 <p className="text-xs text-neutral-400">Saldo Actual</p>
-                <p className="text-lg font-extrabold text-neutral-900">{formatCurrency(selectedAccount.currentBalance)}</p>
+                <p className="text-lg font-extrabold text-neutral-900">{formatAccountBalance(selectedAccount.currentBalance, selectedAccount.currency)}</p>
                 <div className="flex space-x-2 mt-2 justify-end">
                   <button 
                     onClick={() => openEditAccount(selectedAccount)}

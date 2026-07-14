@@ -924,7 +924,10 @@ export function ProjectPlanner({
 
                             {/* Despliegue de tareas de compra */}
                             {isTasksExpanded && (activeProject.tasks || []).filter(t => t.isPayment && t.amount).map(task => (
-                              <tr key={`sub-tsk-${task.id}`} className="bg-neutral-50/40 text-[10px] text-neutral-500 font-semibold border-l-2 border-rose-450">
+                              <tr 
+                                key={`sub-tsk-${task.id}`} 
+                                className={`bg-neutral-50/40 text-[10px] text-neutral-500 font-semibold border-l-2 ${task.completed ? 'border-emerald-500 line-through opacity-75' : 'border-rose-400'}`}
+                              >
                                 <td className="py-2 pl-8 text-neutral-750 flex items-center space-x-1.5">
                                   <span>{task.name}</span>
                                   {task.isPastPayment && (
@@ -1502,9 +1505,16 @@ export function ProjectPlanner({
                                     </span>
                                   )}
                                   {task.isPayment && (
-                                    <span className="text-[9px] font-bold px-1.5 py-0.2 bg-rose-50 text-rose-600 rounded border border-rose-100">
-                                      Pago Requerido
-                                    </span>
+                                    task.completed ? (
+                                      <span className="text-[9px] font-bold px-1.5 py-0.2 bg-emerald-50 text-emerald-700 rounded border border-emerald-100 flex items-center space-x-0.5">
+                                        <Check size={9} className="stroke-[3]" />
+                                        <span>Pagado</span>
+                                      </span>
+                                    ) : (
+                                      <span className="text-[9px] font-bold px-1.5 py-0.2 bg-rose-50 text-rose-600 rounded border border-rose-100">
+                                        Pago Requerido
+                                      </span>
+                                    )
                                   )}
                                 </div>
 
