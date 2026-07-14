@@ -73,6 +73,9 @@ export function ProjectPlanner({
   const [isBudgetExpanded, setIsBudgetExpanded] = useState(false);
   const [isTasksExpanded, setIsTasksExpanded] = useState(false);
   const [isGoalsExpanded, setIsGoalsExpanded] = useState(false);
+  
+  // Interactive Metric Detail Selection
+  const [activeMetricDetail, setActiveMetricDetail] = useState<'capital' | 'previsto' | 'invertido' | 'restante' | null>(null);
 
   // Convert account balances to ARS supporting multiple currencies (USD, USDT, BTC)
   const getAccountBalanceInARS = (acc: Account) => {
@@ -841,29 +844,204 @@ export function ProjectPlanner({
                     </div>
                     
                     {/* Tarjetas de Métricas Principales */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200/50">
-                        <span className="text-[10px] text-neutral-400 font-bold block uppercase tracking-wider">Capital Disponible</span>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* Card 1: Capital Disponible */}
+                      <button 
+                        type="button"
+                        onClick={() => setActiveMetricDetail(activeMetricDetail === 'capital' ? null : 'capital')}
+                        className={`w-full text-left bg-neutral-50 rounded-2xl p-4 border transition-all cursor-pointer hover:border-neutral-350 ${activeMetricDetail === 'capital' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50/10' : 'border-neutral-200/50'}`}
+                      >
+                        <span className="text-[10px] text-neutral-400 font-bold block uppercase tracking-wider flex items-center justify-between">
+                          <span>Capital Disponible</span>
+                          <span className="text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-100">Desglose</span>
+                        </span>
                         <p className="text-lg font-black text-emerald-500 mt-1">{formatCurrency(financialSummary.linkedCapital)}</p>
                         <span className="text-[9.5px] text-neutral-400 mt-1 block truncate">
                           {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).map(a => a.name).join(', ') || 'Sin cuentas.'}
                         </span>
-                      </div>
-                      <div className="bg-neutral-50 rounded-2xl p-4 border border-neutral-200/50">
-                        <span className="text-[10px] text-neutral-400 font-bold block uppercase tracking-wider">Gasto Total Previsto</span>
+                      </button>
+
+                      {/* Card 2: Gasto Total Previsto */}
+                      <button 
+                        type="button"
+                        onClick={() => setActiveMetricDetail(activeMetricDetail === 'previsto' ? null : 'previsto')}
+                        className={`w-full text-left bg-neutral-50 rounded-2xl p-4 border transition-all cursor-pointer hover:border-neutral-350 ${activeMetricDetail === 'previsto' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50/10' : 'border-neutral-200/50'}`}
+                      >
+                        <span className="text-[10px] text-neutral-400 font-bold block uppercase tracking-wider flex items-center justify-between">
+                          <span>Gasto Previsto</span>
+                          <span className="text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-100">Ver Fórmulas</span>
+                        </span>
                         <p className="text-lg font-black text-rose-500 mt-1">{formatCurrency(financialSummary.totalEstimatedExpense)}</p>
-                        <span className="text-[9.5px] text-neutral-400 mt-1 block">
+                        <span className="text-[9.5px] text-neutral-400 mt-1 block truncate">
                           Presupuesto + Tareas de Pago
                         </span>
-                      </div>
-                      <div className={`rounded-2xl p-4 border transition-all ${financialSummary.surplusOrDeficit >= 0 ? 'bg-emerald-50/50 border-emerald-100 text-emerald-850' : 'bg-rose-50/50 border-rose-100 text-rose-850'}`}>
-                        <span className="text-[10px] font-bold block uppercase tracking-wider">{financialSummary.surplusOrDeficit >= 0 ? 'Capital Restante' : 'Faltante de Ahorro'}</span>
+                      </button>
+
+                      {/* Card 3: Total Invertido / Pagado */}
+                      <button 
+                        type="button"
+                        onClick={() => setActiveMetricDetail(activeMetricDetail === 'invertido' ? null : 'invertido')}
+                        className={`w-full text-left bg-neutral-50 rounded-2xl p-4 border transition-all cursor-pointer hover:border-neutral-350 ${activeMetricDetail === 'invertido' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50/10' : 'border-neutral-200/50'}`}
+                      >
+                        <span className="text-[10px] text-neutral-400 font-bold block uppercase tracking-wider flex items-center justify-between">
+                          <span>Total Invertido</span>
+                          <span className="text-[9px] font-black text-indigo-650 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-100">Desglose</span>
+                        </span>
+                        <p className="text-lg font-black text-indigo-600 mt-1">{formatCurrency(financialSummary.totalSpentExpense)}</p>
+                        <span className="text-[9.5px] text-neutral-400 mt-1 block truncate">
+                          Dinero ya pagado
+                        </span>
+                      </button>
+
+                      {/* Card 4: Capital Restante */}
+                      <button 
+                        type="button"
+                        onClick={() => setActiveMetricDetail(activeMetricDetail === 'restante' ? null : 'restante')}
+                        className={`w-full text-left rounded-2xl p-4 border transition-all cursor-pointer ${activeMetricDetail === 'restante' ? 'ring-2 ring-indigo-500' : ''} ${financialSummary.surplusOrDeficit >= 0 ? 'bg-emerald-50/50 border-emerald-200 text-emerald-850 hover:border-emerald-350' : 'bg-rose-50/50 border-rose-200 text-rose-850 hover:border-rose-350'}`}
+                      >
+                        <span className="text-[10px] font-bold block uppercase tracking-wider flex items-center justify-between">
+                          <span>{financialSummary.surplusOrDeficit >= 0 ? 'Capital Restante' : 'Faltante de Ahorro'}</span>
+                          <span className="text-[9px] font-black bg-white px-1.5 py-0.2 rounded border border-neutral-250">Ver Matemática</span>
+                        </span>
                         <p className="text-lg font-black mt-1">{formatCurrency(Math.abs(financialSummary.surplusOrDeficit))}</p>
-                        <span className="text-[9.5px] font-bold mt-1 block">
+                        <span className="text-[9.5px] font-bold mt-1 block truncate">
                           {financialSummary.surplusOrDeficit >= 0 ? '¡Proyecto 100% financiado!' : 'Se requiere vincular más capital.'}
                         </span>
-                      </div>
+                      </button>
                     </div>
+
+                    {/* Panel Interactivo de Desglose de Métricas */}
+                    <AnimatePresence>
+                      {activeMetricDetail && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-neutral-900 text-white rounded-2xl p-4 border border-neutral-800 text-xs shadow-inner overflow-hidden space-y-3"
+                          id="metric-detail-panel"
+                        >
+                          <div className="flex justify-between items-center pb-2 border-b border-neutral-800">
+                            <span className="font-extrabold uppercase text-[10px] tracking-wider text-indigo-400">
+                              {activeMetricDetail === 'capital' && 'Desglose de Capital Disponible'}
+                              {activeMetricDetail === 'previsto' && 'Fórmulas y Componentes del Gasto Previsto'}
+                              {activeMetricDetail === 'invertido' && 'Desglose de Inversiones / Pagos Realizados'}
+                              {activeMetricDetail === 'restante' && 'Cálculo Matemático del Capital Restante'}
+                            </span>
+                            <button 
+                              onClick={() => setActiveMetricDetail(null)}
+                              className="p-1 hover:bg-neutral-800 rounded-full transition-colors cursor-pointer text-neutral-400"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+
+                          {activeMetricDetail === 'capital' && (
+                            <div className="space-y-2">
+                              <p className="text-neutral-400 mb-2">Este capital suma los saldos actuales de todas las cuentas vinculadas a este proyecto específico:</p>
+                              <div className="divide-y divide-neutral-800">
+                                {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).map(acc => (
+                                  <div key={acc.id} className="py-1.5 flex justify-between">
+                                    <span className="font-semibold text-neutral-300">{acc.name} ({acc.type})</span>
+                                    <span className="font-extrabold text-neutral-100">
+                                      {acc.currency !== 'ARS' ? `${acc.currentBalance} ${acc.currency} ≈ ` : ''}
+                                      {formatCurrency(getAccountBalanceInARS(acc))}
+                                    </span>
+                                  </div>
+                                ))}
+                                {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).length === 0 && (
+                                  <p className="text-rose-450 py-1 font-semibold">⚠️ No hay cuentas asociadas a este proyecto. Edita el proyecto para vincular cuentas.</p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMetricDetail === 'previsto' && (
+                            <div className="space-y-2.5">
+                              <p className="text-neutral-400">El Gasto Total Previsto representa la suma de todas las compras estimadas, tareas remuneradas y metas de ahorro del proyecto:</p>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                                <div className="bg-neutral-800/50 p-3 rounded-xl border border-neutral-800">
+                                  <span className="text-[9px] text-neutral-400 font-bold block uppercase tracking-wider">1. Presupuesto Base</span>
+                                  <span className="block font-black text-sm text-neutral-100 mt-1">{formatCurrency(financialSummary.budgetEstimated)}</span>
+                                  <span className="text-[9px] text-neutral-400 mt-0.5 block">Suma de ítems planificados</span>
+                                </div>
+                                <div className="bg-neutral-800/50 p-3 rounded-xl border border-neutral-800">
+                                  <span className="text-[9px] text-neutral-400 font-bold block uppercase tracking-wider">2. Tareas de Pago</span>
+                                  <span className="block font-black text-sm text-neutral-100 mt-1">{formatCurrency(financialSummary.tasksEstimated)}</span>
+                                  <span className="text-[9px] text-neutral-400 mt-0.5 block">Tareas con pago requerido</span>
+                                </div>
+                                <div className="bg-neutral-800/50 p-3 rounded-xl border border-neutral-800">
+                                  <span className="text-[9px] text-neutral-400 font-bold block uppercase tracking-wider">3. Metas Vinculadas</span>
+                                  <span className="block font-black text-sm text-neutral-100 mt-1">{formatCurrency(financialSummary.goalsEstimated)}</span>
+                                  <span className="text-[9px] text-neutral-400 mt-0.5 block">Objetivos de ahorro activos</span>
+                                </div>
+                              </div>
+                              <div className="pt-2 flex justify-between font-black border-t border-neutral-800">
+                                <span className="text-neutral-300">Fórmula de Gasto Previsto</span>
+                                <span className="text-neutral-100">
+                                  {formatCurrency(financialSummary.budgetEstimated)} + {formatCurrency(financialSummary.tasksEstimated)} + {formatCurrency(financialSummary.goalsEstimated)} = {formatCurrency(financialSummary.totalEstimatedExpense)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMetricDetail === 'invertido' && (
+                            <div className="space-y-2.5">
+                              <p className="text-neutral-400">Representa la cantidad total de dinero que ya has gastado o invertido físicamente (y que ya se debitó de tus cuentas):</p>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                                <div className="bg-neutral-800/50 p-3 rounded-xl border border-neutral-800">
+                                  <span className="text-[9px] text-neutral-400 font-bold block uppercase tracking-wider">Presupuesto Pagado</span>
+                                  <span className="block font-black text-sm text-emerald-450 mt-1">{formatCurrency(financialSummary.budgetSpent)}</span>
+                                  <span className="text-[9px] text-neutral-400 mt-0.5 block">Ítems comprados/pagados</span>
+                                </div>
+                                <div className="bg-neutral-800/50 p-3 rounded-xl border border-neutral-800">
+                                  <span className="text-[9px] text-neutral-400 font-bold block uppercase tracking-wider">Tareas Pagadas</span>
+                                  <span className="block font-black text-sm text-emerald-450 mt-1">{formatCurrency(financialSummary.tasksSpent)}</span>
+                                  <span className="text-[9px] text-neutral-400 mt-0.5 block">Tareas marcadas como pagas</span>
+                                </div>
+                                <div className="bg-neutral-800/50 p-3 rounded-xl border border-neutral-800">
+                                  <span className="text-[9px] text-neutral-400 font-bold block uppercase tracking-wider">Metas Ahorradas</span>
+                                  <span className="block font-black text-sm text-emerald-450 mt-1">{formatCurrency(financialSummary.goalsSpent)}</span>
+                                  <span className="text-[9px] text-neutral-400 mt-0.5 block">Ahorro acumulado en metas</span>
+                                </div>
+                              </div>
+                              <div className="pt-2 flex justify-between font-black border-t border-neutral-800">
+                                <span className="text-neutral-300">Fórmula de Inversión Ejecutada</span>
+                                <span className="text-neutral-100">
+                                  {formatCurrency(financialSummary.budgetSpent)} + {formatCurrency(financialSummary.tasksSpent)} + {formatCurrency(financialSummary.goalsSpent)} = {formatCurrency(financialSummary.totalSpentExpense)}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMetricDetail === 'restante' && (
+                            <div className="space-y-3">
+                              <p className="text-neutral-400">Es la diferencia neta entre el Capital que tienes disponible hoy y los Gastos Pendientes por realizar de este proyecto:</p>
+                              <div className="space-y-2 bg-neutral-800/35 p-3 rounded-xl border border-neutral-800">
+                                <div className="flex justify-between">
+                                  <span className="font-semibold text-neutral-300">Capital Disponible Vinc.</span>
+                                  <span className="font-extrabold text-neutral-100">{formatCurrency(financialSummary.linkedCapital)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-semibold text-neutral-300">Gasto Restante / Pendiente (Total Previsto - Total Pagado)</span>
+                                  <span className="font-extrabold text-rose-455">-{formatCurrency(financialSummary.totalEstimatedExpense - financialSummary.totalSpentExpense)}</span>
+                                </div>
+                              </div>
+                              <div className="pt-2 flex justify-between font-black border-t border-neutral-800 text-sm">
+                                <span className="text-neutral-200">Balance del Capital Vinculado</span>
+                                <span className={financialSummary.surplusOrDeficit >= 0 ? 'text-emerald-450' : 'text-rose-455'}>
+                                  {financialSummary.surplusOrDeficit >= 0 ? '+' : '-'}{formatCurrency(Math.abs(financialSummary.surplusOrDeficit))}
+                                </span>
+                              </div>
+                              <p className="text-[10.5px] text-neutral-400 leading-relaxed italic">
+                                {financialSummary.surplusOrDeficit >= 0 
+                                  ? '✅ Tienes fondos suficientes vinculados en tus cuentas de este proyecto para solventar todos los gastos restantes previstos.' 
+                                  : '⚠️ Tus cuentas vinculadas a este proyecto no cubren todos los gastos previstos restantes. Considera reasignar o fondear más capital.'}
+                              </p>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {/* Tabla de Desglose de Gastos */}
                     <div className="pt-4 border-t border-neutral-100 space-y-2">
