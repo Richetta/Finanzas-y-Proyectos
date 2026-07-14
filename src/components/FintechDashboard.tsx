@@ -76,6 +76,14 @@ export function FintechDashboard({
   const [accType, setAccType] = useState<'Billetera Digital' | 'Banco' | 'Efectivo' | 'Cripto' | 'Inversión' | 'Otro'>('Billetera Digital');
   const [accInitialBalance, setAccInitialBalance] = useState('');
   const [accCurrency, setAccCurrency] = useState<'ARS' | 'USD' | 'USDT' | 'BTC'>('ARS');
+  const [accCurrentBalance, setAccCurrentBalance] = useState('');
+
+  // Currency Conversion States
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [convertOriginAccount, setConvertOriginAccount] = useState('');
+  const [convertAmount, setConvertAmount] = useState('');
+  const [convertRate, setConvertRate] = useState('');
+  const [convertDestAccount, setConvertDestAccount] = useState('');
 
   // Conversion helper: returns value in ARS
   const convertToArs = (amount: number, currency: 'ARS' | 'USD' | 'USDT' | 'BTC') => {
@@ -248,21 +256,25 @@ export function FintechDashboard({
 
   // Handle account submit
   const handleAccountSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accName.trim()) {
-      alert('Ingrese un nombre de cuenta.');
-      return;
-    }
+      e.preventDefault();
+      if (!accName.trim()) {
+        alert('Ingrese un nombre de cuenta.');
+        return;
+      }
 
-    if (editingAccount) {
-      onEditAccount({
-        ...editingAccount,
-        name: accName,
-        type: accType,
-        initialBalance: Number(accInitialBalance) || 0,
-        currency: accCurrency
-      });
-    } else {
+      if (editingAccount) {
+        const currentVal = Number(accCurrentBalance) || 0;
+        const diff = currentVal - editingAccount.currentBalance;
+        const computedInitial = editingAccount.initialBalance + diff;
+
+        onEditAccount({
+          ...editingAccount,
+          name: accName,
+          type: accType,
+          initialBalance: computedInitial,
+          currency: accCurrency
+        });
+      } else {
       onAddAccount({
         name: accName,
         type: accType,
@@ -286,6 +298,7 @@ export function FintechDashboard({
     setAccType(acc.type);
     setAccInitialBalance(String(acc.initialBalance));
     setAccCurrency(acc.currency || 'ARS');
+    setAccCurrentBalance(String(acc.currentBalance));
     setShowAccountModal(true);
   };
 
@@ -451,7 +464,7 @@ export function FintechDashboard({
       </div>
 
       {/* Botón de Acción Principal Prominente */}
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full max-w-2xl mx-auto" id="quick-action-button-container">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full max-w-3xl mx-auto" id="quick-action-button-container">
         <button 
           onClick={() => openAddTx('Gasto')}
           className="w-full sm:flex-1 py-3.5 px-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-base flex items-center justify-center space-x-2 shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
@@ -460,6 +473,20 @@ export function FintechDashboard({
           <Plus size={18} className="stroke-[3]" />
           <span>Registrar Movimiento</span>
         </button>
+        {accounts.some(a => a.currency !== 'ARS') && (
+          <button 
+            type="button"
+            onClick={() => {
+              const foreignAcc = accounts.find(a => a.currency !== 'ARS');
+              if (foreignAcc) openConvertModalWithPreset(foreignAcc.name);
+            }}
+            className="w-full sm:flex-1 py-3.5 px-6 bg-indigo-600 hover:bg-indigo-750 text-white rounded-2xl font-bold text-base flex items-center justify-center space-x-2 shadow-lg active:scale-[0.98] transition-all cursor-pointer"
+            id="btn-convertir-moneda"
+          >
+            <RefreshCw size={18} />
+            <span>Convertir Cripto / Divisas</span>
+          </button>
+        )}
         {onOpenScanner && (
           <button 
             type="button"
@@ -531,6 +558,16 @@ export function FintechDashboard({
                 <p className="text-xs text-neutral-400">Saldo Actual</p>
                 <p className="text-lg font-extrabold text-neutral-900">{formatAccountBalance(selectedAccount.currentBalance, selectedAccount.currency)}</p>
                 <div className="flex space-x-2 mt-2 justify-end">
+                  {selectedAccount.currency !== 'ARS' && (
+                    <button 
+                      onClick={() => openConvertModalWithPreset(selectedAccount.name)}
+                      className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1"
+                      title="Convertir a pesos"
+                    >
+                      <RefreshCw size={11} className="animate-spin-slow" />
+                      <span>Convertir a $</span>
+                    </button>
+                  )}
                   <button 
                     onClick={() => openEditAccount(selectedAccount)}
                     className="p-1.5 text-neutral-500 hover:text-neutral-800 hover:bg-white rounded-lg border border-neutral-200/50 transition-all cursor-pointer"
@@ -985,23 +1022,89 @@ export function FintechDashboard({
                   </select>
                 </div>
 
-                {/* Saldo Inicial */}
-                <div>
-                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Saldo inicial / de respaldo ({accCurrency})</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="0"
-                    disabled={!!editingAccount}
-                    value={accInitialBalance}
-                    onChange={e => setAccInitialBalance(e.target.value)}
-                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm text-neutral-800 focus:outline-hidden focus:border-neutral-900 focus:bg-white disabled:opacity-60"
-                    id="input-acc-balance"
-                  />
-                  {!editingAccount && (
+                {/* Saldo Inicial / Actual */}
+                {editingAccount ? (
+                  <div className="space-y-4">
+                    {/* Saldo Actual editable */}
+                    <div>
+                      <label className="block text-xs font-bold text-neutral-600 uppercase tracking-wider mb-2">Saldo Actual en Cuenta ({accCurrency})</label>
+                      <input
+                        type="number"
+                        required
+                        placeholder="0"
+                        value={accCurrentBalance}
+                        onChange={e => setAccCurrentBalance(e.target.value)}
+                        className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm text-neutral-800 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
+                        id="input-acc-current-balance"
+                      />
+                    </div>
+
+                    {/* Alert Box */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-2 text-xs font-semibold text-amber-850">
+                      <div className="flex items-center space-x-2">
+                        <span>⚠️</span>
+                        <span className="font-black text-amber-900">Ajuste de Saldo Directo</span>
+                      </div>
+                      <p className="text-[10.5px] leading-relaxed text-amber-850 font-medium">
+                        Al cambiar el saldo actual de la cuenta, se recalculará automáticamente su Saldo Inicial para mantener la coherencia matemática con tu historial de transacciones registradas.
+                      </p>
+                    </div>
+
+                    {/* Margins Preview Box */}
+                    {(() => {
+                      const currentVal = Number(accCurrentBalance) || 0;
+                      const diff = currentVal - editingAccount.currentBalance;
+                      if (diff === 0) return null;
+
+                      let rate = 1;
+                      if (accCurrency === 'USD') rate = exchangeRates.ARS_USD_BLUE || 1220;
+                      else if (accCurrency === 'USDT') rate = exchangeRates.ARS_USDT || 1240;
+                      else if (accCurrency === 'BTC') rate = (exchangeRates.USD_BTC || 62000) * (exchangeRates.ARS_USD_BLUE || 1220);
+                      const diffArs = diff * rate;
+
+                      return (
+                        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 space-y-3 text-xs">
+                          <h4 className="font-bold text-neutral-700 text-[10px] uppercase tracking-wider">Impacto en Márgenes y Números</h4>
+                          <div className="grid grid-cols-2 gap-3 text-center">
+                            <div className="bg-white p-2.5 rounded-xl border border-neutral-100 flex flex-col justify-between">
+                              <span className="text-[9px] text-neutral-400 font-bold uppercase block">En esta Cuenta</span>
+                              <span className="block font-black text-neutral-850 mt-1 truncate">
+                                {formatAccountBalance(editingAccount.currentBalance, editingAccount.currency)} ➔ {formatAccountBalance(currentVal, editingAccount.currency)}
+                              </span>
+                              <span className={`text-[10px] font-black block mt-1 ${diff >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {diff >= 0 ? '+' : ''}{diff} {accCurrency}
+                              </span>
+                            </div>
+
+                            <div className="bg-white p-2.5 rounded-xl border border-neutral-100 flex flex-col justify-between">
+                              <span className="text-[9px] text-neutral-400 font-bold uppercase block">Patrimonio Total</span>
+                              <span className="block font-black text-neutral-850 mt-1 truncate">
+                                {formatCurrency(patrimonioTotal)} ➔ {formatCurrency(patrimonioTotal + diffArs)}
+                              </span>
+                              <span className={`text-[10px] font-black block mt-1 ${diffArs >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {diffArs >= 0 ? '+' : ''}{formatCurrency(diffArs)} ARS
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Saldo inicial / de respaldo ({accCurrency})</label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="0"
+                      value={accInitialBalance}
+                      onChange={e => setAccInitialBalance(e.target.value)}
+                      className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm text-neutral-800 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
+                      id="input-acc-balance"
+                    />
                     <p className="text-[11px] text-neutral-400 mt-1">Este saldo servirá como base para recalcular todos tus movimientos futuros en la divisa elegida.</p>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Guardar */}
                 <button
@@ -1016,6 +1119,130 @@ export function FintechDashboard({
           </div>
         )}
       </AnimatePresence>
+      
+      {/* Modal: Convertir Criptomonedas / Divisas a Pesos */}
+      <AnimatePresence>
+        {showConvertModal && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4">
+            <motion.div 
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl overflow-y-auto"
+            >
+              <div className="flex justify-between items-center pb-4 border-b border-neutral-100 mb-5">
+                <h3 className="text-base font-bold text-neutral-950 flex items-center space-x-1.5">
+                  <RefreshCw size={16} className="text-indigo-650" />
+                  <span>Convertir Divisa a Pesos</span>
+                </h3>
+                <button 
+                  onClick={() => setShowConvertModal(false)}
+                  className="p-1.5 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+                >
+                  <X size={20} className="text-neutral-505" />
+                </button>
+              </div>
+
+              <form onSubmit={handleConvertSubmit} className="space-y-4 text-xs font-semibold">
+                
+                {/* Cuenta Origen */}
+                <div>
+                  <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Cuenta Origen (Divisa / Cripto)</label>
+                  <select
+                    value={convertOriginAccount}
+                    onChange={e => {
+                      const name = e.target.value;
+                      setConvertOriginAccount(name);
+                      const acc = accounts.find(a => a.name === name);
+                      if (acc) {
+                        if (acc.currency === 'USD') setConvertRate(String(exchangeRates.ARS_USD_BLUE || 1220));
+                        else if (acc.currency === 'USDT') setConvertRate(String(exchangeRates.ARS_USDT || 1240));
+                        else if (acc.currency === 'BTC') setConvertRate(String((exchangeRates.USD_BTC || 62000) * (exchangeRates.ARS_USD_BLUE || 1220)));
+                        else setConvertRate('1');
+                      }
+                    }}
+                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-xs text-neutral-805 focus:outline-hidden"
+                  >
+                    {accounts.filter(a => a.currency !== 'ARS').map(a => (
+                      <option key={a.id} value={a.name}>
+                        {a.name} ({formatAccountBalance(a.currentBalance, a.currency)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Monto a vender */}
+                <div>
+                  <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Monto a vender</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="Monto de la divisa"
+                    value={convertAmount}
+                    onChange={e => setConvertAmount(e.target.value)}
+                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-xs text-neutral-805 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
+                  />
+                </div>
+
+                {/* Tipo de Cambio */}
+                <div>
+                  <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Cotización / Tipo de Cambio (ARS por Unidad)</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="Ej. 1240"
+                    value={convertRate}
+                    onChange={e => setConvertRate(e.target.value)}
+                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-xs text-neutral-805 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
+                  />
+                </div>
+
+                {/* Cuenta Destino (Solo ARS) */}
+                <div>
+                  <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Acreditar Pesos en Cuenta</label>
+                  <select
+                    value={convertDestAccount}
+                    onChange={e => setConvertDestAccount(e.target.value)}
+                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-xs text-neutral-805 focus:outline-hidden"
+                  >
+                    {accounts.filter(a => a.currency === 'ARS').map(a => (
+                      <option key={a.id} value={a.name}>
+                        {a.name} ({formatCurrency(a.currentBalance)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Preview Box */}
+                {(() => {
+                  const amt = Number(convertAmount) || 0;
+                  const rate = Number(convertRate) || 0;
+                  const totalArs = amt * rate;
+                  if (totalArs <= 0) return null;
+
+                  return (
+                    <div className="bg-indigo-50 border border-indigo-150 rounded-2xl p-4 text-center">
+                      <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider block">Recibirás en Pesos</span>
+                      <span className="text-base font-black text-indigo-900 mt-1 block">
+                        {formatCurrency(totalArs)} ARS
+                      </span>
+                    </div>
+                  );
+                })()}
+
+                <button 
+                  type="submit"
+                  className="w-full py-3.5 bg-neutral-900 hover:bg-neutral-850 text-white rounded-2xl font-black text-xs transition-colors cursor-pointer"
+                >
+                  Confirmar Conversión
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
