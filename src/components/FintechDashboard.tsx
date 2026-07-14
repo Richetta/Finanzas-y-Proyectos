@@ -17,6 +17,7 @@ interface FintechDashboardProps {
   transactions: Transaction[];
   categories: Category[];
   onAddTransaction: (t: Omit<Transaction, 'id'>) => void;
+  onAddTransactionsBatch: (newTxs: Omit<Transaction, 'id'>[]) => void;
   onDeleteTransaction: (id: string) => void;
   onEditTransaction: (t: Transaction) => void;
   onAddAccount: (acc: Omit<Account, 'id' | 'currentBalance' | 'currency'> & { currency: 'ARS' | 'USD' | 'USDT' | 'BTC' }) => void;
@@ -31,6 +32,7 @@ export function FintechDashboard({
   transactions,
   categories,
   onAddTransaction,
+  onAddTransactionsBatch,
   onDeleteTransaction,
   onEditTransaction,
   onAddAccount,
