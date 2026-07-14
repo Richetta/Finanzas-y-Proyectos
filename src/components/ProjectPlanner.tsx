@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plus, Calendar, CheckSquare, Square, FileText, Link, Trash2, 
   ChevronRight, ChevronDown, ArrowRight, DollarSign, Award, Percent, AlertTriangle, 
-  Clock, Info, Save, Settings, X, Edit, Sliders, Play, Check, Copy 
+  Clock, Info, Save, Settings, X, Edit, Sliders, Play, Check, Copy, Wallet, TrendingUp, TrendingDown
 } from 'lucide-react';
 import { Project, Account, BudgetItem, ProjectTask, ProjectFile, ProjectCalendarEvent, ExchangeRates } from '../types';
 
