@@ -1633,16 +1633,7 @@ export default function App() {
             <span>{isSyncingGlobal ? 'Sincronizando...' : 'Sync Planilla'}</span>
           </button>
 
-          {showNotifications && (
-            <NotificationPanel
-              notifications={notifications}
-              onMarkAsRead={handleMarkAsRead}
-              onMarkAllAsRead={handleMarkAllAsRead}
-              onClearNotification={handleClearNotification}
-              onClose={() => setShowNotifications(false)}
-              onNavigateToSection={setActiveMenu}
-            />
-          )}
+
         </div>
 
         {/* Mobile Notifications & Hamburger Menu */}
@@ -1665,18 +1656,7 @@ export default function App() {
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
 
-          {showNotifications && (
-            <div className="fixed inset-x-4 top-20 z-50">
-              <NotificationPanel
-                notifications={notifications}
-                onMarkAsRead={handleMarkAsRead}
-                onMarkAllAsRead={handleMarkAllAsRead}
-                onClearNotification={handleClearNotification}
-                onClose={() => setShowNotifications(false)}
-                onNavigateToSection={setActiveMenu}
-              />
-            </div>
-          )}
+
         </div>
       </header>
 
@@ -1933,6 +1913,17 @@ export default function App() {
       </nav>
 
       <AnimatePresence>
+        {showNotifications && (
+          <NotificationPanel
+            notifications={notifications}
+            onMarkAsRead={handleMarkAsRead}
+            onMarkAllAsRead={handleMarkAllAsRead}
+            onClearNotification={handleClearNotification}
+            onClose={() => setShowNotifications(false)}
+            onNavigateToSection={setActiveMenu}
+          />
+        )}
+
         {showScannerModal && (
           <ReceiptScannerModal
             show={showScannerModal}
