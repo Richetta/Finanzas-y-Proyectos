@@ -849,88 +849,76 @@ export function ProjectPlanner({
                       <button 
                         type="button"
                         onClick={() => setActiveMetricDetail(activeMetricDetail === 'capital' ? null : 'capital')}
-                        className={`group relative w-full text-left bg-gradient-to-br from-emerald-50/70 to-emerald-100/20 rounded-3xl p-5 border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-0.5 ${activeMetricDetail === 'capital' ? 'ring-2 ring-emerald-500/75 border-emerald-400 bg-emerald-100/30 shadow-md' : 'border-emerald-100'}`}
+                        className={`w-full text-left bg-white rounded-2xl p-4 border transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:border-emerald-400 ${activeMetricDetail === 'capital' ? 'border-emerald-500 ring-2 ring-emerald-500/10 shadow-emerald-50/50' : 'border-neutral-200/80'}`}
                       >
-                        <div className="absolute right-3 -bottom-3 text-emerald-250/20 group-hover:text-emerald-250/30 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-                          <Wallet size={80} className="stroke-[1.5]" />
+                        <div className="flex justify-between items-center text-neutral-400">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Capital Disponible</span>
+                          <Wallet size={15} className="text-emerald-500" />
                         </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between">
-                          <span className="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider flex items-center justify-between">
-                            <span>Capital Disponible</span>
-                            <span className="text-[9px] font-black text-emerald-700 bg-white border border-emerald-200 px-2 py-0.5 rounded-full shadow-xs">Desglose</span>
-                          </span>
-                          <p className="text-xl font-black text-emerald-600 mt-2.5">{formatCurrency(financialSummary.linkedCapital)}</p>
-                          <span className="text-[9.5px] text-emerald-500/80 font-bold mt-1.5 block truncate">
-                            {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).map(a => a.name).join(', ') || 'Sin cuentas.'}
-                          </span>
-                        </div>
+                        <p className="text-lg font-black text-emerald-600 mt-2">{formatCurrency(financialSummary.linkedCapital)}</p>
+                        <span className="text-[9.5px] font-bold text-neutral-400 mt-1 block">
+                          {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).length} Cuentas Vinculadas
+                        </span>
                       </button>
 
                       {/* Card 2: Gasto Total Previsto */}
                       <button 
                         type="button"
                         onClick={() => setActiveMetricDetail(activeMetricDetail === 'previsto' ? null : 'previsto')}
-                        className={`group relative w-full text-left bg-gradient-to-br from-rose-50/70 to-rose-100/20 rounded-3xl p-5 border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-0.5 ${activeMetricDetail === 'previsto' ? 'ring-2 ring-rose-500/75 border-rose-450 bg-rose-100/30 shadow-md' : 'border-rose-100'}`}
+                        className={`w-full text-left bg-white rounded-2xl p-4 border transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:border-rose-450 ${activeMetricDetail === 'previsto' ? 'border-rose-500 ring-2 ring-rose-500/10 shadow-rose-50/50' : 'border-neutral-200/80'}`}
                       >
-                        <div className="absolute right-3 -bottom-3 text-rose-250/20 group-hover:text-rose-250/30 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-                          <TrendingDown size={80} className="stroke-[1.5]" />
+                        <div className="flex justify-between items-center text-neutral-400">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Gasto Previsto</span>
+                          <TrendingDown size={15} className="text-rose-500" />
                         </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between">
-                          <span className="text-[10px] text-rose-700 font-extrabold uppercase tracking-wider flex items-center justify-between">
-                            <span>Gasto Previsto</span>
-                            <span className="text-[9px] font-black text-rose-700 bg-white border border-rose-200 px-2 py-0.5 rounded-full shadow-xs">Fórmulas</span>
-                          </span>
-                          <p className="text-xl font-black text-rose-650 mt-2.5">{formatCurrency(financialSummary.totalEstimatedExpense)}</p>
-                          <span className="text-[9.5px] text-rose-500/80 font-bold mt-1.5 block truncate">
-                            Presupuesto + Tareas de Pago
-                          </span>
-                        </div>
+                        <p className="text-lg font-black text-rose-600 mt-2">{formatCurrency(financialSummary.totalEstimatedExpense)}</p>
+                        <span className="text-[9.5px] font-bold text-neutral-400 mt-1 block">
+                          Presupuesto + Tareas
+                        </span>
                       </button>
 
-                      {/* Card 3: Total Invertido / Pagado */}
+                      {/* Card 3: Total Invertido */}
                       <button 
                         type="button"
                         onClick={() => setActiveMetricDetail(activeMetricDetail === 'invertido' ? null : 'invertido')}
-                        className={`group relative w-full text-left bg-gradient-to-br from-indigo-50/70 to-indigo-100/20 rounded-3xl p-5 border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-0.5 ${activeMetricDetail === 'invertido' ? 'ring-2 ring-indigo-500/75 border-indigo-450 bg-indigo-100/30 shadow-md' : 'border-indigo-100'}`}
+                        className={`w-full text-left bg-white rounded-2xl p-4 border transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:border-indigo-400 ${activeMetricDetail === 'invertido' ? 'border-indigo-500 ring-2 ring-indigo-500/10 shadow-indigo-50/50' : 'border-neutral-200/80'}`}
                       >
-                        <div className="absolute right-3 -bottom-3 text-indigo-250/20 group-hover:text-indigo-250/30 group-hover:scale-110 transition-all duration-300 pointer-events-none">
-                          <TrendingUp size={80} className="stroke-[1.5]" />
+                        <div className="flex justify-between items-center text-neutral-400">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Total Invertido</span>
+                          <TrendingUp size={15} className="text-indigo-550" />
                         </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between">
-                          <span className="text-[10px] text-indigo-700 font-extrabold uppercase tracking-wider flex items-center justify-between">
-                            <span>Total Invertido</span>
-                            <span className="text-[9px] font-black text-indigo-700 bg-white border border-indigo-200 px-2 py-0.5 rounded-full shadow-xs">Desglose</span>
-                          </span>
-                          <p className="text-xl font-black text-indigo-600 mt-2.5">{formatCurrency(financialSummary.totalSpentExpense)}</p>
-                          <span className="text-[9.5px] text-indigo-500/80 font-bold mt-1.5 block truncate">
-                            Dinero ya pagado
-                          </span>
-                        </div>
+                        <p className="text-lg font-black text-indigo-650 mt-2">{formatCurrency(financialSummary.totalSpentExpense)}</p>
+                        <span className="text-[9.5px] font-bold text-neutral-400 mt-1 block">
+                          Dinero ya pagado
+                        </span>
                       </button>
 
                       {/* Card 4: Capital Restante */}
                       <button 
                         type="button"
                         onClick={() => setActiveMetricDetail(activeMetricDetail === 'restante' ? null : 'restante')}
-                        className={`group relative w-full text-left rounded-3xl p-5 border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-0.5 ${activeMetricDetail === 'restante' ? 'ring-2 ring-neutral-500/75 shadow-md' : ''} ${financialSummary.surplusOrDeficit >= 0 ? 'bg-gradient-to-br from-teal-50/70 to-teal-100/20 border-teal-100 text-teal-900' : 'bg-gradient-to-br from-rose-50/70 to-rose-100/20 border-rose-100 text-rose-900'}`}
+                        className={`w-full text-left bg-white rounded-2xl p-4 border transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md ${
+                          activeMetricDetail === 'restante' 
+                            ? (financialSummary.surplusOrDeficit >= 0 ? 'border-teal-500 ring-2 ring-teal-500/10 shadow-teal-50/50' : 'border-rose-500 ring-2 ring-rose-500/10 shadow-rose-50/50') 
+                            : 'border-neutral-200/80 hover:border-neutral-350'
+                        }`}
                       >
-                        <div className="absolute right-3 -bottom-3 opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-300 pointer-events-none">
+                        <div className="flex justify-between items-center text-neutral-400">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-450">
+                            {financialSummary.surplusOrDeficit >= 0 ? 'Capital Restante' : 'Faltante'}
+                          </span>
                           {financialSummary.surplusOrDeficit >= 0 ? (
-                            <Award size={80} className="stroke-[1.5] text-teal-650" />
+                            <Award size={15} className="text-teal-500" />
                           ) : (
-                            <AlertTriangle size={80} className="stroke-[1.5] text-rose-650" />
+                            <AlertTriangle size={15} className="text-rose-550" />
                           )}
                         </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between">
-                          <span className="text-[10px] font-extrabold uppercase tracking-wider flex items-center justify-between">
-                            <span>{financialSummary.surplusOrDeficit >= 0 ? 'Capital Restante' : 'Faltante de Ahorro'}</span>
-                            <span className="text-[9px] font-black text-neutral-700 bg-white border border-neutral-200 px-2 py-0.5 rounded-full shadow-xs">Matemática</span>
-                          </span>
-                          <p className="text-xl font-black mt-2.5">{formatCurrency(Math.abs(financialSummary.surplusOrDeficit))}</p>
-                          <span className="text-[9.5px] font-bold mt-1.5 block truncate opacity-85">
-                            {financialSummary.surplusOrDeficit >= 0 ? '¡Proyecto 100% financiado!' : 'Se requiere vincular más capital.'}
-                          </span>
-                        </div>
+                        <p className={`text-lg font-black mt-2 ${financialSummary.surplusOrDeficit >= 0 ? 'text-teal-650' : 'text-rose-650'}`}>
+                          {formatCurrency(Math.abs(financialSummary.surplusOrDeficit))}
+                        </p>
+                        <span className="text-[9.5px] font-bold text-neutral-400 mt-1 block">
+                          {financialSummary.surplusOrDeficit >= 0 ? 'Proyecto financiado' : 'Se requieren fondos'}
+                        </span>
                       </button>
                     </div>
 
@@ -941,47 +929,47 @@ export function ProjectPlanner({
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className={`relative bg-white rounded-3xl p-5 border-2 shadow-xl shadow-neutral-100/60 overflow-hidden space-y-4 transition-all duration-300 ${
-                            activeMetricDetail === 'capital' ? 'border-emerald-300' :
-                            activeMetricDetail === 'previsto' ? 'border-rose-300' :
-                            activeMetricDetail === 'invertido' ? 'border-indigo-300' :
-                            'border-neutral-300'
+                          className={`relative bg-white rounded-2xl p-5 border shadow-lg shadow-neutral-100/50 overflow-hidden space-y-4 transition-all duration-200 ${
+                            activeMetricDetail === 'capital' ? 'border-emerald-400' :
+                            activeMetricDetail === 'previsto' ? 'border-rose-400' :
+                            activeMetricDetail === 'invertido' ? 'border-indigo-400' :
+                            'border-neutral-400'
                           }`}
                           id="metric-detail-panel"
                         >
-                          {/* Close button top right */}
+                          {/* Close button */}
                           <button 
                             onClick={() => setActiveMetricDetail(null)}
-                            className="absolute top-4 right-4 p-1.5 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer text-neutral-450 hover:text-neutral-600"
+                            className="absolute top-4 right-4 p-1.5 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer text-neutral-400 hover:text-neutral-600"
                           >
-                            <X size={16} />
+                            <X size={15} />
                           </button>
 
                           {/* Detail Header */}
-                          <div className="flex items-center space-x-2.5">
-                            <div className={`p-2.5 rounded-2xl border ${
+                          <div className="flex items-center space-x-3">
+                            <div className={`p-2.5 rounded-xl border ${
                               activeMetricDetail === 'capital' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
                               activeMetricDetail === 'previsto' ? 'bg-rose-50 border-rose-100 text-rose-600' :
                               activeMetricDetail === 'invertido' ? 'bg-indigo-50 border-indigo-100 text-indigo-600' :
                               'bg-neutral-50 border-neutral-200 text-neutral-600'
                             }`}>
-                              {activeMetricDetail === 'capital' && <Wallet size={18} className="stroke-[2.5]" />}
-                              {activeMetricDetail === 'previsto' && <TrendingDown size={18} className="stroke-[2.5]" />}
-                              {activeMetricDetail === 'invertido' && <TrendingUp size={18} className="stroke-[2.5]" />}
-                              {activeMetricDetail === 'restante' && <Sliders size={18} className="stroke-[2.5]" />}
+                              {activeMetricDetail === 'capital' && <Wallet size={16} className="stroke-[2.5]" />}
+                              {activeMetricDetail === 'previsto' && <TrendingDown size={16} className="stroke-[2.5]" />}
+                              {activeMetricDetail === 'invertido' && <TrendingUp size={16} className="stroke-[2.5]" />}
+                              {activeMetricDetail === 'restante' && <Sliders size={16} className="stroke-[2.5]" />}
                             </div>
                             <div>
-                              <h4 className="text-xs font-black uppercase tracking-wider text-neutral-805">
+                              <h4 className="text-xs font-bold text-neutral-805 uppercase tracking-wider">
                                 {activeMetricDetail === 'capital' && 'Desglose de Capital Disponible'}
-                                {activeMetricDetail === 'previsto' && 'Fórmulas y Componentes del Gasto Previsto'}
-                                {activeMetricDetail === 'invertido' && 'Desglose de Inversiones / Pagos Realizados'}
-                                {activeMetricDetail === 'restante' && 'Cálculo Matemático del Capital Restante'}
+                                {activeMetricDetail === 'previsto' && 'Fórmulas del Gasto Previsto'}
+                                {activeMetricDetail === 'invertido' && 'Desglose de Inversiones Realizadas'}
+                                {activeMetricDetail === 'restante' && 'Matemática del Capital Restante'}
                               </h4>
                               <p className="text-[10px] text-neutral-400 mt-0.5">
-                                {activeMetricDetail === 'capital' && 'Fondos vinculados en cuentas locales o cripto para financiar el proyecto.'}
-                                {activeMetricDetail === 'previsto' && 'Estimación consolidada de todos los gastos comprometidos.'}
-                                {activeMetricDetail === 'invertido' && 'Flujo de efectivo real que ya ha salido de tus cuentas.'}
-                                {activeMetricDetail === 'restante' && 'Proyección del saldo a favor o en contra tras saldar las deudas.'}
+                                {activeMetricDetail === 'capital' && 'Distribución del capital disponible en las cuentas asociadas.'}
+                                {activeMetricDetail === 'previsto' && 'Consolidado de costos estimados del proyecto.'}
+                                {activeMetricDetail === 'invertido' && 'Efectivo real que ya salió de tus cuentas.'}
+                                {activeMetricDetail === 'restante' && 'Proyección de fondos a favor tras completar deudas.'}
                               </p>
                             </div>
                           </div>
@@ -989,61 +977,56 @@ export function ProjectPlanner({
                           {/* Detail Body */}
                           <div className="text-xs text-neutral-700">
                             {activeMetricDetail === 'capital' && (
-                              <div className="space-y-3">
-                                <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
-                                  {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).map(acc => {
-                                    const sharePercentage = financialSummary.linkedCapital > 0 
-                                      ? Math.round((getAccountBalanceInARS(acc) / financialSummary.linkedCapital) * 100)
-                                      : 0;
-                                    return (
-                                      <div key={acc.id} className="py-2.5 flex justify-between items-center">
-                                        <div className="space-y-0.5">
-                                          <span className="font-extrabold text-neutral-808 block">{acc.name}</span>
-                                          <span className="text-[9.5px] font-semibold text-neutral-400 uppercase">{acc.type}</span>
+                              <div className="space-y-1 divide-y divide-neutral-100">
+                                {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).map(acc => {
+                                  const sharePercentage = financialSummary.linkedCapital > 0 
+                                    ? Math.round((getAccountBalanceInARS(acc) / financialSummary.linkedCapital) * 100)
+                                    : 0;
+                                  return (
+                                    <div key={acc.id} className="py-3 flex flex-col space-y-1.5">
+                                      <div className="flex justify-between items-center">
+                                        <div className="flex items-center space-x-2">
+                                          <span className="font-extrabold text-neutral-800">{acc.name}</span>
+                                          <span className="text-[9px] font-bold text-neutral-400 bg-neutral-100 px-1.5 py-0.2 rounded-md uppercase">{acc.type}</span>
                                         </div>
-                                        <div className="text-right space-y-0.5">
-                                          <span className="font-black text-neutral-900 block">
-                                            {acc.currency !== 'ARS' ? `${acc.currentBalance} ${acc.currency} ≈ ` : ''}
-                                            {formatCurrency(getAccountBalanceInARS(acc))}
-                                          </span>
-                                          <span className="text-[9.5px] font-extrabold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded-full">{sharePercentage}% del capital</span>
-                                        </div>
+                                        <span className="font-black text-neutral-900">
+                                          {acc.currency !== 'ARS' ? `${acc.currentBalance} ${acc.currency} ≈ ` : ''}
+                                          {formatCurrency(getAccountBalanceInARS(acc))}
+                                        </span>
                                       </div>
-                                    );
-                                  })}
-                                  {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).length === 0 && (
-                                    <p className="text-rose-500 py-3 font-semibold text-center">⚠️ No hay cuentas asociadas a este proyecto. Edita el proyecto para vincular cuentas.</p>
-                                  )}
-                                </div>
+                                      {/* Horizontal Share progress bar */}
+                                      <div className="flex items-center space-x-2.5">
+                                        <div className="flex-1 bg-neutral-100 h-1.5 rounded-full overflow-hidden">
+                                          <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${sharePercentage}%` }} />
+                                        </div>
+                                        <span className="text-[9.5px] font-extrabold text-neutral-400 min-w-[24px] text-right">${sharePercentage}%</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                {accounts.filter(a => activeProject.allocatedAccountIds.includes(a.id)).length === 0 && (
+                                  <p className="text-rose-500 py-3 font-semibold text-center">⚠️ No hay cuentas asociadas a este proyecto. Edita el proyecto para vincular cuentas.</p>
+                                )}
                               </div>
                             )}
 
                             {activeMetricDetail === 'previsto' && (
                               <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-150 flex items-center justify-between">
-                                    <div>
-                                      <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">1. Presupuesto Base</span>
-                                      <span className="block font-black text-base text-neutral-800 mt-1">{formatCurrency(financialSummary.budgetEstimated)}</span>
-                                    </div>
-                                    <span className="p-1.5 bg-neutral-200/50 rounded-lg text-neutral-500 text-[10px] font-bold">Items</span>
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="bg-neutral-50/50 rounded-xl p-3 border border-neutral-150 text-center">
+                                    <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">1. Presupuesto Base</span>
+                                    <span className="block font-black text-sm text-neutral-800 mt-1">{formatCurrency(financialSummary.budgetEstimated)}</span>
                                   </div>
-                                  <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-150 flex items-center justify-between">
-                                    <div>
-                                      <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">2. Tareas de Pago</span>
-                                      <span className="block font-black text-base text-neutral-800 mt-1">{formatCurrency(financialSummary.tasksEstimated)}</span>
-                                    </div>
-                                    <span className="p-1.5 bg-neutral-200/50 rounded-lg text-neutral-500 text-[10px] font-bold">Tareas</span>
+                                  <div className="bg-neutral-50/50 rounded-xl p-3 border border-neutral-150 text-center">
+                                    <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">2. Tareas de Pago</span>
+                                    <span className="block font-black text-sm text-neutral-800 mt-1">{formatCurrency(financialSummary.tasksEstimated)}</span>
                                   </div>
-                                  <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-150 flex items-center justify-between">
-                                    <div>
-                                      <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">3. Metas de Ahorro</span>
-                                      <span className="block font-black text-base text-neutral-800 mt-1">{formatCurrency(financialSummary.goalsEstimated)}</span>
-                                    </div>
-                                    <span className="p-1.5 bg-neutral-200/50 rounded-lg text-neutral-500 text-[10px] font-bold">Metas</span>
+                                  <div className="bg-neutral-50/50 rounded-xl p-3 border border-neutral-150 text-center">
+                                    <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">3. Metas Vinculadas</span>
+                                    <span className="block font-black text-sm text-neutral-800 mt-1">{formatCurrency(financialSummary.goalsEstimated)}</span>
                                   </div>
                                 </div>
-                                <div className="p-3 bg-rose-50/50 border border-rose-100 rounded-2xl flex justify-between items-center text-xs font-black text-rose-900">
+                                <div className="p-3 bg-rose-50/40 border border-rose-100 rounded-xl flex justify-between items-center text-[10.5px] font-black text-rose-900">
                                   <span>FÓRMULA PREVISTA:</span>
                                   <span>
                                     {formatCurrency(financialSummary.budgetEstimated)} + {formatCurrency(financialSummary.tasksEstimated)} + {formatCurrency(financialSummary.goalsEstimated)} = {formatCurrency(financialSummary.totalEstimatedExpense)}
@@ -1054,31 +1037,22 @@ export function ProjectPlanner({
 
                             {activeMetricDetail === 'invertido' && (
                               <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-150 flex items-center justify-between">
-                                    <div>
-                                      <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">Presupuesto Pagado</span>
-                                      <span className="block font-black text-base text-neutral-800 mt-1">{formatCurrency(financialSummary.budgetSpent)}</span>
-                                    </div>
-                                    <span className="p-1.5 bg-emerald-50 border border-emerald-100 text-emerald-650 rounded-lg text-[10px] font-black">Pagado</span>
+                                <div className="grid grid-cols-3 gap-3">
+                                  <div className="bg-neutral-50/50 rounded-xl p-3 border border-neutral-150 text-center">
+                                    <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">Presupuesto Pagado</span>
+                                    <span className="block font-black text-sm text-neutral-800 mt-1">{formatCurrency(financialSummary.budgetSpent)}</span>
                                   </div>
-                                  <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-150 flex items-center justify-between">
-                                    <div>
-                                      <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">Tareas Pagadas</span>
-                                      <span className="block font-black text-base text-neutral-800 mt-1">{formatCurrency(financialSummary.tasksSpent)}</span>
-                                    </div>
-                                    <span className="p-1.5 bg-emerald-50 border border-emerald-100 text-emerald-650 rounded-lg text-[10px] font-black">Marcadas</span>
+                                  <div className="bg-neutral-50/50 rounded-xl p-3 border border-neutral-150 text-center">
+                                    <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">Tareas Pagadas</span>
+                                    <span className="block font-black text-sm text-neutral-800 mt-1">{formatCurrency(financialSummary.tasksSpent)}</span>
                                   </div>
-                                  <div className="bg-neutral-50 rounded-2xl p-3.5 border border-neutral-150 flex items-center justify-between">
-                                    <div>
-                                      <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">Metas Ahorradas</span>
-                                      <span className="block font-black text-base text-neutral-800 mt-1">{formatCurrency(financialSummary.goalsSpent)}</span>
-                                    </div>
-                                    <span className="p-1.5 bg-emerald-50 border border-emerald-100 text-emerald-650 rounded-lg text-[10px] font-black">Acumulado</span>
+                                  <div className="bg-neutral-50/50 rounded-xl p-3 border border-neutral-150 text-center">
+                                    <span className="text-[9px] text-neutral-400 font-extrabold uppercase block tracking-wide">Metas Ahorradas</span>
+                                    <span className="block font-black text-sm text-neutral-800 mt-1">{formatCurrency(financialSummary.goalsSpent)}</span>
                                   </div>
                                 </div>
-                                <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex justify-between items-center text-xs font-black text-indigo-900">
-                                  <span>INVERSIÓN EJECUTADA:</span>
+                                <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl flex justify-between items-center text-[10.5px] font-black text-indigo-900">
+                                  <span>INVERSIÓN REALIZADA:</span>
                                   <span>
                                     {formatCurrency(financialSummary.budgetSpent)} + {formatCurrency(financialSummary.tasksSpent)} + {formatCurrency(financialSummary.goalsSpent)} = {formatCurrency(financialSummary.totalSpentExpense)}
                                   </span>
@@ -1088,28 +1062,29 @@ export function ProjectPlanner({
 
                             {activeMetricDetail === 'restante' && (
                               <div className="space-y-3.5">
-                                <div className="space-y-2 bg-neutral-50 p-4 border border-neutral-200/50 rounded-2xl">
+                                <div className="space-y-2.5 bg-neutral-50 p-4 border border-neutral-150 rounded-xl">
                                   <div className="flex justify-between items-center">
-                                    <span className="font-extrabold text-neutral-600">Capital Disponible Vinc.</span>
+                                    <span className="font-extrabold text-neutral-500">Capital Disponible</span>
                                     <span className="font-black text-neutral-800 text-sm">{formatCurrency(financialSummary.linkedCapital)}</span>
                                   </div>
                                   <div className="flex justify-between items-center">
-                                    <span className="font-extrabold text-neutral-600">Gasto Restante / Pendiente (Previsto - Pagado)</span>
+                                    <span className="font-extrabold text-neutral-500 flex items-center space-x-1">
+                                      <span>Gastos Pendientes</span>
+                                      <span className="text-[8.5px] font-extrabold bg-neutral-200/50 px-1.5 py-0.2 rounded text-neutral-500">Previsto - Pagado</span>
+                                    </span>
                                     <span className="font-black text-rose-500 text-sm">-{formatCurrency(financialSummary.totalEstimatedExpense - financialSummary.totalSpentExpense)}</span>
                                   </div>
-                                </div>
-                                <div className={`p-3.5 rounded-2xl flex justify-between items-center text-xs font-black ${
-                                  financialSummary.surplusOrDeficit >= 0 ? 'bg-emerald-50 border border-emerald-150 text-emerald-900' : 'bg-rose-50 border border-rose-150 text-rose-900'
-                                }`}>
-                                  <span>BALANCE DEL CAPITAL VINCULADO:</span>
-                                  <span>
-                                    {financialSummary.surplusOrDeficit >= 0 ? '+' : '-'}{formatCurrency(Math.abs(financialSummary.surplusOrDeficit))}
-                                  </span>
+                                  <div className="pt-2.5 border-t border-neutral-200 flex justify-between items-center text-xs font-black">
+                                    <span className="text-neutral-800">Sobrante Neto Final</span>
+                                    <span className={financialSummary.surplusOrDeficit >= 0 ? 'text-emerald-600' : 'text-rose-600'}>
+                                      {financialSummary.surplusOrDeficit >= 0 ? '+' : '-'}{formatCurrency(Math.abs(financialSummary.surplusOrDeficit))}
+                                    </span>
+                                  </div>
                                 </div>
                                 <p className="text-[10.5px] text-neutral-450 leading-relaxed font-semibold">
                                   {financialSummary.surplusOrDeficit >= 0 
-                                    ? '✅ Tienes fondos suficientes vinculados en tus cuentas de este proyecto para solventar todos los gastos restantes previstos.' 
-                                    : '⚠️ Tus cuentas vinculadas a este proyecto no cubren todos los gastos previstos restantes. Considera reasignar o fondear más capital.'}
+                                    ? '✅ Cuentas con saldo neto suficiente para liquidar los gastos previstos restantes.' 
+                                    : '⚠️ Fondos insuficientes en las cuentas vinculadas. Considera transferir o vincular más capital.'}
                                 </p>
                               </div>
                             )}
