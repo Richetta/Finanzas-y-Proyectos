@@ -20,7 +20,7 @@ interface GastosFijosViewProps {
   transactions: Transaction[];
   onAddFixedExpense: (exp: Omit<FixedExpense, 'id'>) => void;
   onDeleteFixedExpense: (id: string) => void;
-  onPayFixedExpense: (id: string, accountId: string) => void;
+  onPayFixedExpense: (id: string, accountId: string, monthStr?: string) => void;
   onUpdateFixedExpense: (exp: FixedExpense) => void;
   onDeleteTransaction: (id: string) => void;
   exchangeRates: any;
@@ -46,6 +46,26 @@ export function GastosFijosView({
   const [statusFilter, setStatusFilter] = useState<'todos' | 'pendientes' | 'pagados'>('todos');
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [onlyMarkAsPaid, setOnlyMarkAsPaid] = useState(false);
+  
+  // Custom states for History Drawer and Month Selection
+  const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(null);
+  const [paymentMonth, setPaymentMonth] = useState('');
+
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const monthOptions = useMemo(() => {
+    const options = [];
+    const today = new Date();
+    // We offer previous 2 months, current month, and next 2 months
+    for (let i = -2; i <= 2; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+      const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+      options.push({ val, label: capitalizedLabel });
+    }
+    return options;
+  }, []);
   
   // Helper for dynamic Next Payment date calculation
   const getNextPaymentDateStr = (dueDay: number, lastPaidMonth: string) => {
@@ -182,6 +202,7 @@ export function GastosFijosView({
 
   const handleOpenPayModal = (id: string) => {
     setPayingExpenseId(id);
+    setPaymentMonth(currentMonthStr);
     if (accounts.length > 0) {
       setSelectedAccountId(accounts[0].id);
     }
@@ -192,10 +213,10 @@ export function GastosFijosView({
     if (!payingExpenseId) return;
 
     if (onlyMarkAsPaid) {
-      onPayFixedExpense(payingExpenseId, 'skip_contabilidad');
+      onPayFixedExpense(payingExpenseId, 'skip_contabilidad', paymentMonth);
     } else {
       if (!selectedAccountId) return;
-      onPayFixedExpense(payingExpenseId, selectedAccountId);
+      onPayFixedExpense(payingExpenseId, selectedAccountId, paymentMonth);
     }
     setPayingExpenseId(null);
     setSelectedAccountId('');
@@ -672,6 +693,21 @@ export function GastosFijosView({
                     </select>
                   </div>
                 )}
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Período / Mes de Servicio a Pagar</label>
+                  <select
+                    value={paymentMonth}
+                    onChange={e => setPaymentMonth(e.target.value)}
+                    className="w-full p-3 bg-neutral-50 border border-neutral-200 rounded-2xl text-sm text-neutral-800 focus:outline-hidden focus:border-neutral-900 focus:bg-white"
+                  >
+                    {monthOptions.map(opt => (
+                      <option key={opt.val} value={opt.val}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <button
                   type="submit"
