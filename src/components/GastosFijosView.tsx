@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Plus, Calendar, Trash2, ExternalLink, Copy, Check, AlertCircle, X, 
   Repeat, CreditCard, CheckCircle2, AlertTriangle, Info, HelpCircle, 
-  Briefcase, Tv, Home, Coins, ArrowUpRight, DollarSign, ChevronDown, ChevronUp, Edit2
+  Briefcase, Tv, Home, Coins, ArrowUpRight, DollarSign, ChevronDown, ChevronUp, Edit2, Clock
 } from 'lucide-react';
 import { FixedExpense, Account } from '../types';
 
