@@ -392,115 +392,195 @@ export function GastosFijosView({
                   const isPaid = exp.lastPaidMonth === currentMonthStr;
                   const isLink = exp.paymentLink?.startsWith('http');
                   
+                  // Filter transactions related to this fixed expense
+                  const expPayments = (transactions || []).filter(t => 
+                    t.tags && t.tags.includes('gasto-fijo') && 
+                    (t.description.toLowerCase().includes(exp.name.toLowerCase()) || 
+                     (exp.description && t.description.toLowerCase().includes(exp.description.toLowerCase())))
+                  );
+                  
                   return (
                     <div 
-                      key={exp.id} 
-                      className={`bg-white rounded-2xl p-4 border shadow-xs flex justify-between items-start transition-all ${isPaid ? 'border-neutral-100 opacity-80' : 'border-neutral-200/80 hover:border-neutral-300'}`}
-                      id={`expense-card-${exp.id}`}
+                      key={exp.id}
+                      className="flex flex-col bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden transition-all duration-200 hover:shadow-md"
+                      id={`expense-card-container-${exp.id}`}
                     >
-                      <div className="space-y-2 min-w-0 flex-1">
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <h5 className="text-sm font-bold text-neutral-800 truncate">{exp.name}</h5>
-                            <span className="text-[9px] px-1.5 py-0.2 bg-neutral-100 text-neutral-500 rounded font-medium">
-                              {exp.subgroup}
-                            </span>
-                          </div>
-                          {exp.description && (
-                            <p className="text-[10.5px] text-neutral-400 mt-0.5 truncate max-w-xs">{exp.description}</p>
-                          )}
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10.5px] text-neutral-400 font-medium">
-                          <span className="flex items-center space-x-1">
-                            <Calendar size={11} />
-                            <span>Vence: Día {exp.dueDay} (Próximo: {getNextPaymentDateStr(exp.dueDay, exp.lastPaidMonth)})</span>
-                          </span>
-                          
-                          {/* Mostrar Estado */}
-                          <span className={`px-1.5 py-0.2 rounded-sm font-bold ${isPaid ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                            {isPaid ? 'Pagado' : 'Pendiente'}
-                          </span>
-                        </div>
-
-                        {/* Enlaces de pago / Alias */}
-                        {exp.paymentLink && (
-                          <div className="flex items-center space-x-1 pt-1">
-                            {isLink ? (
-                              <a 
-                                href={exp.paymentLink}
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="text-[10px] text-indigo-500 hover:text-indigo-600 font-extrabold flex items-center space-x-0.5"
-                              >
-                                <ExternalLink size={10} />
-                                <span>Página de Pago</span>
-                              </a>
-                            ) : (
-                              <div className="flex items-center space-x-1.5 bg-neutral-50 border border-neutral-100 rounded-lg px-2 py-1 text-[9px] font-mono text-neutral-500">
-                                <span className="truncate max-w-[120px]">Alias: {exp.paymentLink}</span>
-                                <button 
-                                  onClick={() => handleCopyLinkOrAlias(exp.paymentLink!, exp.id)}
-                                  className="text-indigo-500 hover:text-indigo-600 cursor-pointer"
-                                  title="Copiar alias"
-                                >
-                                  {copiedId === exp.id ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
-                                </button>
-                              </div>
+                      {/* Card Content Header */}
+                      <div 
+                        className={`p-4 flex justify-between items-start transition-all ${isPaid ? 'opacity-85' : ''}`}
+                        id={`expense-card-${exp.id}`}
+                      >
+                        <div className="space-y-2 min-w-0 flex-1">
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <h5 className="text-sm font-bold text-neutral-805 truncate">{exp.name}</h5>
+                              <span className="text-[9px] px-1.5 py-0.2 bg-neutral-100 text-neutral-500 rounded font-medium uppercase tracking-wider">
+                                {exp.subgroup}
+                              </span>
+                            </div>
+                            {exp.description && (
+                              <p className="text-[10.5px] text-neutral-400 mt-0.5 truncate max-w-xs">{exp.description}</p>
                             )}
                           </div>
-                        )}
-                      </div>
 
-                      {/* Montos y Acciones */}
-                      <div className="text-right flex flex-col justify-between items-end h-full min-h-[75px] ml-4">
-                        <div>
-                          <span className="text-sm font-extrabold text-neutral-900 block">
-                            {formatNativeBalance(exp.amount, exp.currency)}
-                          </span>
-                          {exp.currency !== 'ARS' && (
-                            <span className="text-[9px] text-neutral-400">
-                              ≈ {formatCurrency(convertToArs(exp.amount, exp.currency))}
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10.5px] text-neutral-400 font-bold">
+                            <span className="flex items-center space-x-1">
+                              <Calendar size={11} className="text-neutral-450" />
+                              <span>Vence: Día ${exp.dueDay} (Próximo: ${getNextPaymentDateStr(exp.dueDay, exp.lastPaidMonth)})</span>
                             </span>
-                          )}
-                        </div>
+                            
+                            {/* Mostrar Estado */}
+                            <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider ${isPaid ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/60' : 'bg-amber-50 text-amber-600 border border-amber-100/60'}`}>
+                              {isPaid ? 'Pagado' : 'Pendiente'}
+                            </span>
+                          </div>
 
-                        <div className="flex items-center space-x-2 mt-4">
-                          {!isPaid ? (
-                            <button
-                              onClick={() => handleOpenPayModal(exp.id)}
-                              className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black transition-colors flex items-center space-x-1 cursor-pointer"
-                            >
-                              <CreditCard size={10} />
-                              <span>Pagar</span>
-                            </button>
-                          ) : (
-                            <div className="p-1 text-emerald-500 bg-emerald-50 rounded-lg" title="Servicio pagado este mes">
-                              <CheckCircle2 size={13} className="stroke-[2.5]" />
+                          {/* Enlaces de pago / Alias */}
+                          {exp.paymentLink && (
+                            <div className="flex items-center space-x-1 pt-1">
+                              {isLink ? (
+                                <a 
+                                  href={exp.paymentLink}
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="text-[10px] text-indigo-500 hover:text-indigo-650 font-black flex items-center space-x-0.5"
+                                >
+                                  <ExternalLink size={10} />
+                                  <span>Página de Pago</span>
+                                </a>
+                              ) : (
+                                <div className="flex items-center space-x-1.5 bg-neutral-50 border border-neutral-150 rounded-lg px-2.5 py-1 text-[9.5px] font-mono text-neutral-500">
+                                  <span className="truncate max-w-[120px]">Alias: ${exp.paymentLink}</span>
+                                  <button 
+                                    onClick={() => handleCopyLinkOrAlias(exp.paymentLink!, exp.id)}
+                                    className="text-indigo-500 hover:text-indigo-655 cursor-pointer"
+                                    title="Copiar alias"
+                                  >
+                                    {copiedId === exp.id ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           )}
+                        </div>
 
-                          <button 
-                            onClick={() => handleStartEdit(exp)}
-                            className="p-1 text-neutral-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                            title="Editar gasto"
-                          >
-                            <Edit2 size={13} />
-                          </button>
+                        {/* Montos y Acciones */}
+                        <div className="text-right flex flex-col justify-between items-end h-full min-h-[75px] ml-4 flex-shrink-0">
+                          <div>
+                            <span className="text-sm font-extrabold text-neutral-900 block">
+                              {formatNativeBalance(exp.amount, exp.currency)}
+                            </span>
+                            {exp.currency !== 'ARS' && (
+                              <span className="text-[9px] text-neutral-400 font-bold">
+                                ≈ {formatCurrency(convertToArs(exp.amount, exp.currency))}
+                              </span>
+                            )}
+                          </div>
 
-                          <button 
-                            onClick={() => {
-                              if (confirm(`¿Estás seguro de eliminar el gasto fijo "${exp.name}"?`)) {
-                                onDeleteFixedExpense(exp.id);
-                              }
-                            }}
-                            className="p-1 text-neutral-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                            title="Eliminar gasto"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          <div className="flex items-center space-x-2 mt-4">
+                            {!isPaid ? (
+                              <button
+                                onClick={() => handleOpenPayModal(exp.id)}
+                                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black transition-colors flex items-center space-x-1 cursor-pointer shadow-xs"
+                              >
+                                <CreditCard size={10} />
+                                <span>Pagar</span>
+                              </button>
+                            ) : (
+                              <div className="p-1.5 text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg" title="Servicio pagado este mes">
+                                <CheckCircle2 size={13} className="stroke-[2.5]" />
+                              </div>
+                            )}
+
+                            <button 
+                              onClick={() => handleStartEdit(exp)}
+                              className="p-1.5 text-neutral-455 hover:text-indigo-650 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                              title="Editar gasto"
+                            >
+                              <Edit2 size={13} />
+                            </button>
+
+                            <button 
+                              onClick={() => {
+                                if (confirm(`¿Estás seguro de eliminar el gasto fijo "${exp.name}"?`)) {
+                                  onDeleteFixedExpense(exp.id);
+                                }
+                              }}
+                              className="p-1.5 text-neutral-455 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                              title="Eliminar gasto"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Card Bottom / Collapsible History Toggle */}
+                      <div className="px-4 py-2.5 border-t border-neutral-100 bg-neutral-50/30 flex justify-between items-center text-[9.5px] font-bold text-neutral-400">
+                        <button 
+                          type="button"
+                          onClick={() => setExpandedExpenseId(expandedExpenseId === exp.id ? null : exp.id)}
+                          className="hover:text-indigo-655 flex items-center space-x-1 transition-colors cursor-pointer"
+                        >
+                          <Clock size={9.5} className="text-neutral-400" />
+                          <span>Historial de Pagos (${expPayments.length})</span>
+                          <ChevronDown size={8} className={`transform transition-transform duration-200 ${expandedExpenseId === exp.id ? 'rotate-180 text-indigo-500' : ''}`} />
+                        </button>
+                        <span>
+                          Último pago: {exp.lastPaidMonth ? `${monthNames[parseInt(exp.lastPaidMonth.split('-')[1], 10) - 1]} &nbsp;${exp.lastPaidMonth.split('-')[0]}` : 'Ninguno'}
+                        </span>
+                      </div>
+
+                      {/* Collapsible History Logs list */}
+                      <AnimatePresence>
+                        {expandedExpenseId === exp.id && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="bg-neutral-50/50 border-t border-neutral-100 p-4 space-y-2 text-xs overflow-hidden"
+                          >
+                            <h6 className="text-[9px] font-black uppercase tracking-wider text-neutral-450 flex items-center space-x-1.5">
+                              <Repeat size={9.5} className="text-neutral-400" />
+                              <span>Pagos Registrados para ${exp.name}</span>
+                            </h6>
+                            
+                            <div className="divide-y divide-neutral-150/40 max-h-[160px] overflow-y-auto pr-1 scrollbar-thin">
+                              {expPayments.map(p => (
+                                <div key={p.id} className="py-2 flex justify-between items-center text-[10.5px]">
+                                  <div className="space-y-0.5">
+                                    <span className="font-extrabold text-neutral-808 block">
+                                      {p.description.replace(`Pago: ${exp.name} `, '').replace(/\s*\[Periodo: \d{4}-\d{2}\]/, '').trim()}
+                                    </span>
+                                    <span className="text-[9px] font-semibold text-neutral-400 block uppercase">
+                                      {p.date.split('-').reverse().join('/')} • Desde: {p.originAccount}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-2.5">
+                                    <span className="font-black text-rose-600">-{formatNativeBalance(p.amount, exp.currency)}</span>
+                                    <button
+                                      onClick={() => {
+                                        if (confirm(`¿Estás seguro de eliminar este pago del historial?\nSe reembolsará el saldo a la cuenta de origen.`)) {
+                                          onDeleteTransaction(p.id);
+                                        }
+                                      }}
+                                      className="p-1 hover:bg-neutral-200/60 text-neutral-300 hover:text-rose-500 rounded-md transition-colors cursor-pointer"
+                                      title="Eliminar este pago del historial"
+                                    >
+                                      <Trash2 size={11} />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              
+                              {expPayments.length === 0 && (
+                                <p className="text-center py-4 text-neutral-400 italic text-[10px]">No hay transacciones registradas para este servicio.</p>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   );
                 })}

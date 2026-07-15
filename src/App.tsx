@@ -483,6 +483,7 @@ export default function App() {
   };
 
   const handleDeleteTransaction = (id: string) => {
+    const deletedTx = transactions.find(t => t.id === id);
     const updatedTxs = transactions.filter(t => t.id !== id);
     setTransactions(updatedTxs);
     saveLocalTransactions(updatedTxs);
@@ -492,10 +493,38 @@ export default function App() {
     setAccounts(updatedAccounts);
     saveLocalAccounts(updatedAccounts);
 
+    // Revert lastPaidMonth on fixed expense if payment was deleted
+    let updatedExpenses = fixedExpenses;
+    if (deletedTx && deletedTx.tags && deletedTx.tags.includes('gasto-fijo')) {
+      const matchedExpense = fixedExpenses.find(e => deletedTx.description.includes(e.name));
+      if (matchedExpense) {
+        const remainingTxs = updatedTxs.filter(t => 
+          t.tags && t.tags.includes('gasto-fijo') && t.description.includes(matchedExpense.name)
+        );
+        let newLastPaidMonth = '';
+        if (remainingTxs.length > 0) {
+          const sorted = [...remainingTxs].sort((a, b) => b.date.localeCompare(a.date));
+          const match = sorted[0].description.match(/\[Periodo: (\d{4}-\d{2})\]/);
+          if (match) {
+            newLastPaidMonth = match[1];
+          }
+        }
+        
+        updatedExpenses = fixedExpenses.map(e => {
+          if (e.id === matchedExpense.id) {
+            return { ...e, lastPaidMonth: newLastPaidMonth };
+          }
+          return e;
+        });
+        setFixedExpenses(updatedExpenses);
+        saveLocalFixedExpenses(updatedExpenses);
+      }
+    }
+
     addSyncLog('Transacción Eliminada', 'success', `ID: ${id}. Balance recalculado.`);
     updateLogsState();
     
-    triggerBackgroundSync(updatedAccounts, updatedTxs, projects, goals);
+    triggerBackgroundSync(updatedAccounts, updatedTxs, projects, goals, updatedExpenses);
   };
 
   const handleEditTransaction = (editedTx: Transaction) => {
@@ -825,18 +854,18 @@ export default function App() {
     triggerBackgroundSync(accounts, transactions, projects, goals, updated);
   };
 
-  const handlePayFixedExpense = (expenseId: string, accountId: string) => {
+  const handlePayFixedExpense = (expenseId: string, accountId: string, monthStr?: string) => {
     const exp = fixedExpenses.find(e => e.id === expenseId);
     if (!exp) return;
     
-    const currentMonthStr = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const targetMonthStr = monthStr || new Date().toISOString().slice(0, 7); // YYYY-MM
 
     if (accountId === 'skip_contabilidad') {
       const updatedExpenses = fixedExpenses.map(e => {
         if (e.id === expenseId) {
           return {
             ...e,
-            lastPaidMonth: currentMonthStr
+            lastPaidMonth: targetMonthStr
           };
         }
         return e;
@@ -854,6 +883,12 @@ export default function App() {
     const acc = accounts.find(a => a.id === accountId);
     if (!acc) return;
     
+    // Compute Period Label
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const [y, m] = targetMonthStr.split('-');
+    const mLabel = monthNames[parseInt(m, 10) - 1] || m;
+    const periodLabel = `${mLabel} ${y}`;
+
     // 1. Create expense transaction
     const txPayload: Omit<Transaction, 'id'> = {
       date: new Date().toISOString().split('T')[0],
@@ -861,7 +896,7 @@ export default function App() {
       originAccount: acc.name,
       category: exp.group === 'Otro' ? 'Otros' : exp.group === 'Alquiler & Hogar' ? 'Alquiler' : exp.group === 'Reservas & Futuros' ? 'Inversiones' : exp.group,
       amount: exp.amount,
-      description: `Pago mensual: ${exp.name} (${exp.subgroup})`,
+      description: `Pago: ${exp.name} (${periodLabel}) [Periodo: ${targetMonthStr}]`,
       tags: ['gasto-fijo', exp.subgroup.toLowerCase()]
     };
     
@@ -879,12 +914,12 @@ export default function App() {
     setAccounts(updatedAccounts);
     saveLocalAccounts(updatedAccounts);
     
-    // 3. Mark fixed expense as paid in current month
+    // 3. Mark fixed expense as paid in target month
     const updatedExpenses = fixedExpenses.map(e => {
       if (e.id === expenseId) {
         return {
           ...e,
-          lastPaidMonth: currentMonthStr
+          lastPaidMonth: targetMonthStr
         };
       }
       return e;
