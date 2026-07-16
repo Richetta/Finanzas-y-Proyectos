@@ -1124,31 +1124,30 @@ export default function App() {
           ...payload
         };
         
-        await fetch(syncConfig.appsScriptUrl, {
+        const response = await fetch(syncConfig.appsScriptUrl, {
           method: 'POST',
-          mode: 'no-cors', // Standard Google GAS web app requirement when not sending customized CORS headers
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain;charset=utf-8', // Evita triggering de preflight CORSOPTIONS en Apps Script
           },
           body: JSON.stringify(postPayload),
         });
 
-        // Since 'no-cors' mode opaque response cannot be read in JS, we simulate a successful POST transit.
-        // It guarantees the data reaches Google Servers safely.
-        await new Promise(r => setTimeout(r, 1200));
-
-        const now = new Date().toLocaleString();
-        const updatedConfig: SyncConfig = {
-          ...syncConfig,
-          lastSync: now,
-          isConnected: true
-        };
-        setSyncConfig(updatedConfig);
-        saveSyncConfig(updatedConfig);
-        localStorage.setItem('fp_has_pending_sync', 'false');
-        setHasPendingSync(false);
-        
-        addSyncLog('Sincronización GAS Exitosa', 'success', `Datos de planilla actualizados vía API POST.`);
+        const resData = await response.json();
+        if (resData && resData.status === 'success') {
+          const now = new Date().toLocaleString();
+          const updatedConfig: SyncConfig = {
+            ...syncConfig,
+            lastSync: now,
+            isConnected: true
+          };
+          setSyncConfig(updatedConfig);
+          saveSyncConfig(updatedConfig);
+          localStorage.setItem('fp_has_pending_sync', 'false');
+          setHasPendingSync(false);
+          addSyncLog('Sincronización GAS Exitosa', 'success', `Datos de planilla actualizados vía API POST.`);
+        } else {
+          throw new Error(resData.message || 'Respuesta fallida del servidor.');
+        }
       } catch (err: any) {
         addSyncLog('Sincronización GAS Falló', 'error', err.toString() || 'Error de red.');
       } finally {
@@ -1250,25 +1249,30 @@ export default function App() {
           action: 'sync_all',
           ...payload
         };
-
+ 
         fetch(syncConfig.appsScriptUrl, {
           method: 'POST',
-          mode: 'no-cors',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain;charset=utf-8',
           },
           body: JSON.stringify(postPayload)
-        }).then(() => {
-          const now = new Date().toLocaleString();
-          const cfg = { ...syncConfig, lastSync: now, isConnected: true };
-          setSyncConfig(cfg);
-          saveSyncConfig(cfg);
-          localStorage.setItem('fp_has_pending_sync', 'false');
-          setHasPendingSync(false);
-          addSyncLog('Sync de Fondo Exitoso', 'success', 'Cambios reflejados en Google Sheets en segundo plano.');
-          updateLogsState();
+        })
+        .then(response => response.json())
+        .then(resData => {
+          if (resData && resData.status === 'success') {
+            const now = new Date().toLocaleString();
+            const cfg = { ...syncConfig, lastSync: now, isConnected: true };
+            setSyncConfig(cfg);
+            saveSyncConfig(cfg);
+            localStorage.setItem('fp_has_pending_sync', 'false');
+            setHasPendingSync(false);
+            addSyncLog('Sync de Fondo Exitoso', 'success', 'Cambios reflejados en Google Sheets en segundo plano.');
+            updateLogsState();
+          } else {
+            throw new Error(resData.message || 'Respuesta fallida.');
+          }
         }).catch(err => {
-          addSyncLog('Sync de Fondo Falló', 'error', 'Error al sincronizar cambio. Guardado en cola local.');
+          addSyncLog('Sync de Fondo Falló', 'error', 'Error al sincronizar cambio: ' + err.toString());
           updateLogsState();
         });
       }
@@ -1659,13 +1663,18 @@ export default function App() {
             )}
           </button>
 
-          <button
+           <button
             onClick={triggerManualSync}
             disabled={isSyncingGlobal}
-            className="p-2 bg-neutral-50 hover:bg-neutral-100 text-neutral-600 rounded-xl border border-neutral-200/40 transition-all flex items-center space-x-1.5 text-xs font-bold cursor-pointer disabled:opacity-60"
+            className={`p-2 rounded-xl border transition-all flex items-center space-x-1.5 text-xs font-bold cursor-pointer disabled:opacity-60 ${
+              hasPendingSync 
+                ? 'bg-amber-50 text-amber-700 border-amber-300 animate-pulse' 
+                : 'bg-neutral-50 hover:bg-neutral-100 text-neutral-600 border-neutral-200/40'
+            }`}
+            title={hasPendingSync ? 'Tienes cambios pendientes por sincronizar' : 'Sincronizar planilla'}
           >
             <RefreshCw size={12} className={isSyncingGlobal ? 'animate-spin' : ''} />
-            <span>{isSyncingGlobal ? 'Sincronizando...' : 'Sync Planilla'}</span>
+            <span>{isSyncingGlobal ? 'Sincronizando...' : hasPendingSync ? 'Sync Pendiente' : 'Sync Planilla'}</span>
           </button>
 
 
@@ -1765,10 +1774,14 @@ export default function App() {
             <button
               onClick={() => { triggerManualSync(); setMobileMenuOpen(false); }}
               disabled={isSyncingGlobal}
-              className="w-full mt-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition-all flex items-center justify-center space-x-2 cursor-pointer"
+              className={`w-full mt-4 py-3 text-xs font-black rounded-xl transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+                hasPendingSync 
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white animate-pulse' 
+                  : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+              }`}
             >
               <RefreshCw size={13} className={isSyncingGlobal ? 'animate-spin' : ''} />
-              <span>Sincronizar Google Sheets</span>
+              <span>{hasPendingSync ? 'Subir Cambios Pendientes' : 'Sincronizar Google Sheets'}</span>
             </button>
           </motion.div>
         )}
