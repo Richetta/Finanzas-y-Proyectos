@@ -1524,43 +1524,6 @@ function ShoppingListViewInner({
         )}
       </AnimatePresence>
 
-    </div>
-  );
-}
-
-export function ShoppingListView(props: ShoppingListViewProps) {
-  const [error, setError] = useState<Error | null>(null);
-
-  if (error) {
-    return (
-      <div className="p-8 bg-rose-50 border border-rose-200 rounded-3xl text-rose-800 space-y-4">
-        <h3 className="text-sm font-black flex items-center">
-          <AlertCircle className="mr-2" size={16} /> 
-          Error al cargar Lista de Compras
-        </h3>
-        <p className="text-xs font-semibold">
-          Detectamos una inconsistencia en los datos cargados o en la estructura. Puedes restablecer los datos locales para solucionar el problema.
-        </p>
-        <pre className="text-xs p-4 bg-white rounded-xl border border-rose-100 overflow-auto max-h-60 font-mono">
-          {error.stack || error.message || String(error)}
-        </pre>
-        <button 
-          onClick={() => { 
-            localStorage.removeItem('fp_shopping_groups'); 
-            window.location.reload(); 
-          }} 
-          className="text-xs bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold cursor-pointer transition-all shadow-xs"
-        >
-          Restablecer Datos Locales y Recargar
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <ErrorBoundary onError={setError}>
-      <ShoppingListViewInner {...props} />
-
       {/* Modal: Crear Insumo de Despensa */}
       <AnimatePresence>
         {showPantryModal && (
@@ -1651,6 +1614,42 @@ export function ShoppingListView(props: ShoppingListViewProps) {
         )}
       </AnimatePresence>
 
+    </div>
+  );
+}
+
+export function ShoppingListView(props: ShoppingListViewProps) {
+  const [error, setError] = useState<Error | null>(null);
+
+  if (error) {
+    return (
+      <div className="p-8 bg-rose-50 border border-rose-200 rounded-3xl text-rose-800 space-y-4">
+        <h3 className="text-sm font-black flex items-center">
+          <AlertCircle className="mr-2" size={16} /> 
+          Error al cargar Lista de Compras
+        </h3>
+        <p className="text-xs font-semibold">
+          Detectamos una inconsistencia en los datos cargados o en la estructura. Puedes restablecer los datos locales para solucionar el problema.
+        </p>
+        <pre className="text-xs p-4 bg-white rounded-xl border border-rose-100 overflow-auto max-h-60 font-mono">
+          {error.stack || error.message || String(error)}
+        </pre>
+        <button 
+          onClick={() => { 
+            localStorage.removeItem('fp_shopping_groups'); 
+            window.location.reload(); 
+          }} 
+          className="text-xs bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold cursor-pointer transition-all shadow-xs"
+        >
+          Restablecer Datos Locales y Recargar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <ErrorBoundary onError={setError}>
+      <ShoppingListViewInner {...props} />
     </ErrorBoundary>
   );
 }
